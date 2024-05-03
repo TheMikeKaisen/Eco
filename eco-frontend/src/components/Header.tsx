@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { FaSearch, FaShoppingBag, FaSignInAlt, FaSignOutAlt, FaUser } from 'react-icons/fa'
 import { Link } from 'react-router-dom'
 
-const user = {"_id":"1234", "role":"admin"}
+const user = {"_id":"1234", "role":""}
 
 const Header = () => {
 
