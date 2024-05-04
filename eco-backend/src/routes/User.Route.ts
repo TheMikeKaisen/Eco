@@ -1,11 +1,18 @@
 import express from 'express'
-import { newUser } from '../controllers/User.controller.js';
+import { deleteUser, getAllUsers, getUser, newUser } from '../controllers/User.controller.js';
 
 const UserRoute = express.Router()
 
-UserRoute.get('/', (req, res, next)=> res.status(200).json({message: 'welcome'}))
+// get routes
+UserRoute.get('/all', getAllUsers);
 
+// post routes
 UserRoute.post('/new', newUser)
 
+//delete routes
+UserRoute.delete('/:id', deleteUser)
+
+// dynamic routes
+UserRoute.get('/:id', getUser);
 
 export default UserRoute;
