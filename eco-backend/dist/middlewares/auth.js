@@ -2,7 +2,7 @@ import { User } from "../models/User.Model.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { TryCatch } from "./error.js";
 // middleware to make sure only admin is allowed
-export const adminOnly = () => TryCatch(async (req, res, next) => {
+export const adminOnly = TryCatch(async (req, res, next) => {
     const { id } = req.query;
     if (!id) {
         return next(new ErrorHandler("Login required", 401));
