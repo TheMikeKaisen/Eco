@@ -1,0 +1,69 @@
+[
+    {
+      "_id": "ObjectId('66370fb5ce606919e19a8256')",
+      "name": "Samsung Galaxy S23",
+      "photo": "uploads/s23.jpeg",
+      "price": 850,
+      "stock": 100,
+      "category": "mobile phone",
+      "createdAt": "2024-05-05T04:48:53.634Z",
+      "updatedAt": "2024-05-05T04:48:53.634Z",
+      "__v": 0
+    },
+    {
+      "_id": "ObjectId('66370fb5ce606919e19a8257')",
+      "name": "MacBook Air M2",
+      "photo": "uploads/airM2.webp",
+      "price": 1299,
+      "stock": 50,
+      "category": "laptop",
+      "createdAt": "2024-05-05T04:48:53.634Z",
+      "updatedAt": "2024-05-05T04:48:53.634Z",
+      "__v": 0
+    },
+    {
+      "_id": "ObjectId('66370fb5ce606919e19a8258')",
+      "name": "Sony WH-1000XM5",
+      "photo": "uploads/sony.webp",
+      "price": 400,
+      "stock": 75,
+      "category": "electronic item",
+      "createdAt": "2024-05-05T04:48:53.634Z",
+      "updatedAt": "2024-05-05T04:48:53.634Z",
+      "__v": 0
+    },
+    {
+      "_id": "ObjectId('66370fb5ce606919e19a8282')",
+      "name": "Cotton T-Shirt",
+      "photo": "uploads/tshirt.webp",
+      "price": 25,
+      "stock": 200,
+      "category": "clothes",
+      "createdAt": "2024-05-05T04:48:53.634Z",
+      "updatedAt": "2024-05-05T04:48:53.634Z",
+      "__v": 0
+    },
+    {
+      "_id": "ObjectId('66370fb5ce606919e19a8283')",
+      "name": "Modern Vase",
+      "photo": "uploads/vase.webp",
+      "price": 50,
+      "stock": 30,
+      "category": "decor",
+      "createdAt": "2024-05-05T04:48:53.634Z",
+      "updatedAt": "2024-05-05T04:48:53.634Z",
+      "__v": 0
+    },
+    {
+      "_id": "ObjectId('66370fb5ce606919e19a8284')",
+      "name": "Leather Wallet",
+      "photo": "uploads/wallet.webp",
+      "price": 75,
+      "stock": 150,
+      "category": "clothes",
+      "createdAt": "2024-05-05T04:48:53.634Z",
+      "updatedAt": "2024-05-05T04:48:53.634Z",
+      "__v": 0
+    }
+]
+  
