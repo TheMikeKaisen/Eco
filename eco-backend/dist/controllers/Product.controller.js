@@ -2,6 +2,8 @@ import { TryCatch } from "../middlewares/error.js";
 import { Product } from "../models/Product.Model.js";
 import ErrorHandler from "../utils/utility-class.js";
 import { rm } from "fs";
+import { myCache } from "../app.js";
+import { invalidateCache } from "../utils/features.js";
 export const newProduct = TryCatch(async (req, res, next) => {
     const { name, price, stock, category } = req.body;
     const photo = req.file;
@@ -22,6 +24,7 @@ export const newProduct = TryCatch(async (req, res, next) => {
         price,
         photo: photo.path,
     });
+    await invalidateCache({ product: true }); // deleted the stored cache
     if (!newProduct) {
         return next(new ErrorHandler("Error while creating product", 500));
     }
@@ -30,10 +33,18 @@ export const newProduct = TryCatch(async (req, res, next) => {
         message: "Product created successfully",
     });
 });
+// invalidate
 export const latestProducts = TryCatch(async (req, res, next) => {
-    const latest = await Product.find({}).sort({ createdAt: -1 });
-    if (!latest) {
-        return next(new ErrorHandler("could not get the products", 500));
+    let latest;
+    if (myCache.has("latest-products")) {
+        latest = JSON.parse(myCache.get("latest-products"));
+    }
+    else {
+        latest = await Product.find({}).sort({ createdAt: -1 }).limit(5);
+        if (!latest) {
+            return next(new ErrorHandler("could not get the products", 500));
+        }
+        myCache.set("latest-products", JSON.stringify(latest));
     }
     return res.status(201).json({
         success: true,
@@ -41,9 +52,16 @@ export const latestProducts = TryCatch(async (req, res, next) => {
     });
 });
 export const getAllCategories = TryCatch(async (req, res, next) => {
-    const categories = await Product.distinct("category");
-    if (!categories) {
-        return next(new ErrorHandler("could not get categories", 500));
+    let categories;
+    if (myCache.has("categories")) {
+        categories = JSON.parse(myCache.get("categories"));
+    }
+    else {
+        categories = await Product.distinct("category");
+        if (!categories) {
+            return next(new ErrorHandler("could not get categories", 500));
+        }
+        myCache.set("categories", JSON.stringify(categories));
     }
     return res.status(201).json({
         success: true,
@@ -51,9 +69,16 @@ export const getAllCategories = TryCatch(async (req, res, next) => {
     });
 });
 export const getAdminProducts = TryCatch(async (req, res, next) => {
-    const products = await Product.find({});
-    if (!products) {
-        return next(new ErrorHandler("could not get the products", 500));
+    let products;
+    if (myCache.has("adminProducts")) {
+        products = JSON.parse(myCache.get("adminProducts"));
+    }
+    else {
+        products = await Product.find({});
+        if (!products) {
+            return next(new ErrorHandler("could not get the products", 500));
+        }
+        myCache.set("adminProducts", JSON.stringify(products));
     }
     return res.status(201).json({
         success: true,
@@ -65,9 +90,16 @@ export const getSingleProduct = TryCatch(async (req, res, next) => {
     if (!id) {
         return next(new ErrorHandler("id not specified", 400));
     }
-    const product = await Product.findById(id);
-    if (!product) {
-        return next(new ErrorHandler("could not get the product", 500));
+    let product;
+    if (myCache.has(`product-${id}`)) {
+        product = JSON.parse(myCache.get(`product-${id}`));
+    }
+    else {
+        product = await Product.findById(id);
+        if (!product) {
+            return next(new ErrorHandler("could not get the product", 500));
+        }
+        myCache.set(`product-${id}`, JSON.stringify(product));
     }
     return res.status(201).json({
         success: true,
@@ -101,6 +133,7 @@ export const updateSingleProduct = TryCatch(async (req, res, next) => {
     if (stock)
         product.stock = stock;
     await product.save();
+    await invalidateCache({ product: true });
     return res.status(200).json({
         success: true,
         product,
@@ -119,6 +152,7 @@ export const deleteProduct = TryCatch(async (req, res, next) => {
         console.log("photo deleted");
     });
     await product.deleteOne();
+    await invalidateCache({ product: true });
     return res.status(201).json({
         success: true,
         message: "product successfully deleted!",

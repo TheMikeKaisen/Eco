@@ -2,12 +2,14 @@ import express from 'express';
 import { connectDB } from './utils/db.connect.js';
 import 'dotenv/config';
 import { errorMiddlware } from './middlewares/error.js';
+import NodeCache from 'node-cache';
 // routes
 import UserRoute from './routes/User.Route.js';
 import ProductRouter from './routes/Products.Route.js';
 import bodyParser from 'body-parser';
 const PORT = 3000;
 const app = express();
+export const myCache = new NodeCache();
 connectDB();
 app.use(express.json());
 // to work with form-value encoded data
