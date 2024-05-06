@@ -2,7 +2,7 @@
 
 import express from 'express'
 import { connectDB } from './utils/db.connect.js';
-import 'dotenv/config'
+import {config} from 'dotenv'
 import { errorMiddlware } from './middlewares/error.js';
 import NodeCache from 'node-cache'
 
@@ -10,8 +10,16 @@ import NodeCache from 'node-cache'
 import UserRoute from './routes/User.Route.js';
 import ProductRouter from './routes/Products.Route.js';
 import bodyParser from 'body-parser';
+import OrderRoute from './routes/Orders.route.js';
+import morgan from 'morgan';
 
-const PORT = 3000;
+config({
+    path: "../.env"
+})
+
+const mongo_uri = process.env.MONGO_LOCAL_URI || " "
+
+const PORT = process.env.PORT || 3000;
 
 const app = express()
 
@@ -20,6 +28,7 @@ export const myCache = new NodeCache();
 connectDB();
 
 app.use(express.json())
+app.use(morgan("dev"))
 
 // to work with form-value encoded data
 app.use(bodyParser.urlencoded({extended: true}))
@@ -29,6 +38,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 // Routes
 app.use('/api/v1/user', UserRoute)
 app.use('/api/v1/product', ProductRouter)
+app.use('/api/v1/order', OrderRoute)
 
 
 app.use('/uploads', express.static("uploads")) // whoever hit the end point '/uploads' can access the uploads folder as static file.
