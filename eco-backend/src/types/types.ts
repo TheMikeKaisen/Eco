@@ -48,6 +48,8 @@ export type InvalidateCacheProps = {
     product?: boolean;
     order?:boolean;
     admin?:boolean;
+    userId?:string;
+    orderId?: string;
 }
 
 
@@ -68,11 +70,15 @@ export type shippingInfoType = {
 }
 export type NewOrderRequestBody = {
     shippingInfo: {}
-    user: String, 
-    subtotal: String, 
-    tax: Number, 
-    shippingCharges: Number, 
-    discount: Number, 
-    total: Number, 
+    user: string, 
+    subtotal: string, 
+    tax: number, 
+    shippingCharges: number, 
+    discount: number, 
+    total: number, 
     orderItems: OrderItemType[], 
+}
+
+export type IdRequestBody = {
+    id?: String;
 }
