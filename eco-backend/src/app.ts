@@ -12,6 +12,7 @@ import ProductRouter from './routes/Products.Route.js';
 import bodyParser from 'body-parser';
 import OrderRoute from './routes/Orders.route.js';
 import morgan from 'morgan';
+import paymentRoute from './routes/Payment.route.js';
 
 config({
     path: "../.env"
@@ -39,6 +40,7 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use('/api/v1/user', UserRoute)
 app.use('/api/v1/product', ProductRouter)
 app.use('/api/v1/order', OrderRoute)
+app.use('/api/v1/payments', paymentRoute)
 
 
 app.use('/uploads', express.static("uploads")) // whoever hit the end point '/uploads' can access the uploads folder as static file.
