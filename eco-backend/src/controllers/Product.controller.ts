@@ -45,11 +45,11 @@ export const newProduct = TryCatch(
     return res.status(201).json({
       success: true,
       message: "Product created successfully",
+      newProduct
     });
   }
 );
 
-// invalidate
 export const latestProducts = TryCatch(async (req, res, next) => {
 
   let latest;
@@ -163,7 +163,7 @@ export const updateSingleProduct = TryCatch(async (req, res, next) => {
 
   await product.save();
 
-  await invalidateCache({product: true})
+  await invalidateCache({product: true, productId: String(product._id)})
 
 
   return res.status(200).json({
@@ -187,7 +187,7 @@ export const deleteProduct = TryCatch(async (req, res, next) => {
   });
   await product.deleteOne();
 
-  await invalidateCache({product: true})
+  await invalidateCache({product: true, productId: String(product._id)})
 
 
   return res.status(201).json({

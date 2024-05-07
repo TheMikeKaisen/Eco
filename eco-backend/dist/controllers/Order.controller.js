@@ -24,6 +24,7 @@ export const newOrder = TryCatch(async (req, res, next) => {
         order: true,
         admin: true,
         userId: user,
+        productId: newOrder.orderItems.map(i => String(i.productId)),
     });
     return res.status(201).json({
         success: true,
