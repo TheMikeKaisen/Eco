@@ -10,6 +10,7 @@ import bodyParser from 'body-parser';
 import OrderRoute from './routes/Orders.route.js';
 import morgan from 'morgan';
 import paymentRoute from './routes/Payment.route.js';
+import statsRoute from './routes/Stats.route.js';
 config({
     path: "../.env"
 });
@@ -27,6 +28,7 @@ app.use('/api/v1/user', UserRoute);
 app.use('/api/v1/product', ProductRouter);
 app.use('/api/v1/order', OrderRoute);
 app.use('/api/v1/payments', paymentRoute);
+app.use('/api/v1/dashboard', statsRoute);
 app.use('/uploads', express.static("uploads")); // whoever hit the end point '/uploads' can access the uploads folder as static file.
 app.use(errorMiddlware); // always written at the last of all middlewares
 app.listen(PORT, () => {
