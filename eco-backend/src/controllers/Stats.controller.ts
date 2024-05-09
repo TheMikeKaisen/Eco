@@ -4,7 +4,7 @@ import { TryCatch } from "../middlewares/error.js";
 import { Order } from "../models/Order.Model.js";
 import { Product } from "../models/Product.Model.js";
 import { User } from "../models/User.Model.js";
-import { calculatePercentage } from "../utils/features.js";
+import { calculatePercentage, getInventories } from "../utils/features.js";
 
 export const dashboardStats = TryCatch(async (req, res, next) => {
   let stats = {};
@@ -109,7 +109,7 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
       Product.distinct("category"),
       User.countDocuments({ gender: "female" }),
       User.countDocuments({ gender: "male" }),
-      latestTransactionPromise
+      latestTransactionPromise,
     ]);
 
     const thisMonthRevenue = thisMonthOrders.reduce(
@@ -159,19 +159,9 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
       }
     });
 
-    const categoriesCountPromise = await categories.map(async (element) =>
-      Product.countDocuments({ category: element })
-    );
-
-    let categoriesCount = await Promise.all(categoriesCountPromise);
-
-    const categoryCount: Record<string, number>[] = [];
-
-    // calculating the percentage of each category.
-    categories.forEach((category, i) => {
-      categoryCount.push({
-        [category]: Math.round((categoriesCount[i] / productsCount) * 100), // without square brackets, category would be read as a string.
-      });
+    const categoryCount = await getInventories({
+      categories,
+      productsCount,
     });
 
     const userRatio = {
@@ -179,17 +169,16 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
       female: femaleUserCount,
     };
 
-    const modifiedLatestTransaction = latestTransaction.map((i)=> ({
+    const modifiedLatestTransaction = latestTransaction.map((i) => ({
       _id: i._id,
-      discount: i.discount, 
-      amount: i.total, 
-      quantity: i.orderItems.length, 
-      status: i.status
-    }))
+      discount: i.discount,
+      amount: i.total,
+      quantity: i.orderItems.length,
+      status: i.status,
+    }));
 
     stats = {
       categoryCount,
-      categoriesCount,
       changePercent,
       count,
       chart: {
@@ -200,7 +189,7 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
       latestTransaction: modifiedLatestTransaction,
     };
 
-    myCache.set('admin-stats', JSON.stringify(stats))
+    myCache.set("admin-stats", JSON.stringify(stats));
   }
   return res.status(200).json({
     success: true,
@@ -208,7 +197,113 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
   });
 });
 
-export const getPieCharts = TryCatch(async (req, res, next) => {});
+export const getPieCharts = TryCatch(async (req, res, next) => {
+  let charts;
+
+  if (myCache.has("admin-pie-charts")) {
+    charts = JSON.parse(myCache.get("admin-pie-charts") as string);
+  } else {
+    const allOrderPromise = Order.find({}).select([
+      "total",
+      "discount",
+      "subtotal",
+      "tax",
+      "shippingCharges",
+    ]);
+    const [
+      processingOrder,
+      shippedOrder,
+      deliveredOrder,
+      categories,
+      productsCount,
+      outOfStock,
+      allOrders,
+      allUsers,
+      adminCount, 
+      userCount
+    ] = await Promise.all([
+      Order.countDocuments({ status: "Processing" }),
+      Order.countDocuments({ status: "Shipped" }),
+      Order.countDocuments({ status: "Delivered" }),
+      Product.distinct("category"),
+      Product.countDocuments(),
+      Product.countDocuments({ stock: 0 }),
+      allOrderPromise,
+      User.find({}).select(['dob']),
+      User.countDocuments({role: "admin"}),
+      User.countDocuments({role: "user"})
+    ]);
+
+    const orderFulfillment = {
+      processing: processingOrder,
+      shipped: shippedOrder,
+      delivered: deliveredOrder,
+    };
+
+    const productCategories = await getInventories({
+      categories,
+      productsCount,
+    });
+
+    const stockAvailability = {
+      inStock: productsCount - outOfStock,
+      outOfStock,
+    };
+
+    const grossIncome = allOrders.reduce(
+      (prev, order) => prev + (order.total || 0),
+      0
+    );
+    const discount = allOrders.reduce(
+      (prev, order) => prev + (order.discount || 0),
+      0
+    );
+    const productionCost = allOrders.reduce( // assuming that company provides free shipping charges.
+      (prev, order) => prev + (order.shippingCharges || 0),
+      0
+    );
+    const burnt = allOrders.reduce(
+      (prev, order) => prev + (order.tax || 0),
+      0
+    );
+    const marketingCost = Math.round(grossIncome * (30 / 100)) //Assuming that the marketing cost is 30 percent of the gross income
+    const netMargin = grossIncome - discount - productionCost - burnt - marketingCost
+    
+    const usersAgeGroup = {
+      teen: allUsers.filter(i=> i.age < 20).length, 
+      adult: allUsers.filter(i=> i.age>=20 && i.age<40).length,
+      old: allUsers.filter(i=> i.age>=40).length
+    }
+    
+    const adminCustomer = {
+      admin: adminCount,
+      customer: userCount 
+    }
+
+    const revenueDistribution = {
+      netMargin,
+      discount,
+      productionCost,
+      burnt,
+      marketingCost,
+      adminCustomer
+    };
+
+    charts = {
+      orderFulfillment,
+      productCategories,
+      stockAvailability,
+      usersAgeGroup,
+      revenueDistribution
+    };
+
+    myCache.set("admin-pie-charts", JSON.stringify(charts));
+  }
+  return res.status(200).json({
+    success: true,
+    charts,
+  });
+});
 
 export const getBarCharts = TryCatch(async (req, res, next) => {});
 

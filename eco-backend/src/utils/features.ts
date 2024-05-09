@@ -10,21 +10,19 @@ export const invalidateCache = async ({
   admin,
   userId,
   orderId,
-  productId
+  productId,
 }: InvalidateCacheProps) => {
   if (product) {
     const productKeys: string[] = [
       "latest-products",
       "categories",
       "adminProducts",
-      
     ];
 
-    if(typeof productId === "string") productKeys.push(`product-${productId}`)
-    if(typeof productId === "object"){
-        productId.forEach(i => productKeys.push(`product-${i}`))  
+    if (typeof productId === "string") productKeys.push(`product-${productId}`);
+    if (typeof productId === "object") {
+      productId.forEach((i) => productKeys.push(`product-${i}`));
     }
-        
 
     myCache.del(productKeys);
   }
@@ -54,9 +52,32 @@ export const reduceStock = async (orderItems: OrderItemType[]) => {
 };
 
 export const calculatePercentage = (thisMonth: number, lastMonth: number) => {
+  if (lastMonth === 0) return thisMonth * 100; // if last month count was 0 and this month's count is 4, then this month has got 400% increase than last month
 
-  if(lastMonth === 0) return thisMonth * 100; // if last month count was 0 and this month's count is 4, then this month has got 400% increase than last month
-  
-  const percent = ((thisMonth - lastMonth)/lastMonth) * 100;
-  return percent.toFixed(0)
-}
+  const percent = ((thisMonth - lastMonth) / lastMonth) * 100;
+  return percent.toFixed(0);
+};
+
+export const getInventories = async ({
+  categories,
+  productsCount,
+}: {
+  categories: string[];
+  productsCount: number;
+}) => {
+  const categoriesCountPromise = await categories.map(async (element) =>
+    Product.countDocuments({ category: element })
+  );
+
+  let categoriesCount = await Promise.all(categoriesCountPromise);
+
+  const categoryCount: Record<string, number>[] = [];
+
+  // calculating the percentage of each category.
+  categories.forEach((category, i) => {
+    categoryCount.push({
+      [category]: Math.round((categoriesCount[i] / productsCount) * 100), // without square brackets, category would be read as a string.
+    });
+  });
+  return categoryCount
+};
