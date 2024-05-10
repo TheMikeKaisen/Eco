@@ -3,7 +3,7 @@ import { TryCatch } from "../middlewares/error.js";
 import { Order } from "../models/Order.Model.js";
 import { Product } from "../models/Product.Model.js";
 import { User } from "../models/User.Model.js";
-import { calculatePercentage, getInventories } from "../utils/features.js";
+import { calculatePercentage, getChartData, getInventories } from "../utils/features.js";
 export const dashboardStats = TryCatch(async (req, res, next) => {
     let stats = {};
     if (myCache.has("admin-stats")) {
@@ -102,7 +102,7 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
         const monthlyRevenue = new Array(6).fill(0);
         lastSixMonthOrders.forEach((order) => {
             const creationDate = order.createdAt;
-            const monthDiff = today.getMonth() - creationDate.getMonth();
+            const monthDiff = (today.getMonth() - creationDate.getMonth() + 12) % 12;
             if (monthDiff < 6) {
                 orderMonthCounts[5 - monthDiff] += 1;
                 monthlyRevenue[5 - monthDiff] += order.total;
@@ -154,7 +154,7 @@ export const getPieCharts = TryCatch(async (req, res, next) => {
             "tax",
             "shippingCharges",
         ]);
-        const [processingOrder, shippedOrder, deliveredOrder, categories, productsCount, outOfStock, allOrders, allUsers, adminCount, userCount] = await Promise.all([
+        const [processingOrder, shippedOrder, deliveredOrder, categories, productsCount, outOfStock, allOrders, allUsers, adminCount, userCount,] = await Promise.all([
             Order.countDocuments({ status: "Processing" }),
             Order.countDocuments({ status: "Shipped" }),
             Order.countDocuments({ status: "Delivered" }),
@@ -162,9 +162,9 @@ export const getPieCharts = TryCatch(async (req, res, next) => {
             Product.countDocuments(),
             Product.countDocuments({ stock: 0 }),
             allOrderPromise,
-            User.find({}).select(['dob']),
+            User.find({}).select(["dob"]),
             User.countDocuments({ role: "admin" }),
-            User.countDocuments({ role: "user" })
+            User.countDocuments({ role: "user" }),
         ]);
         const orderFulfillment = {
             processing: processingOrder,
@@ -181,19 +181,20 @@ export const getPieCharts = TryCatch(async (req, res, next) => {
         };
         const grossIncome = allOrders.reduce((prev, order) => prev + (order.total || 0), 0);
         const discount = allOrders.reduce((prev, order) => prev + (order.discount || 0), 0);
-        const productionCost = allOrders.reduce(// assuming that company provides free shipping charges.
+        const productionCost = allOrders.reduce(
+        // assuming that company provides free shipping charges.
         (prev, order) => prev + (order.shippingCharges || 0), 0);
         const burnt = allOrders.reduce((prev, order) => prev + (order.tax || 0), 0);
         const marketingCost = Math.round(grossIncome * (30 / 100)); //Assuming that the marketing cost is 30 percent of the gross income
         const netMargin = grossIncome - discount - productionCost - burnt - marketingCost;
         const usersAgeGroup = {
-            teen: allUsers.filter(i => i.age < 20).length,
-            adult: allUsers.filter(i => i.age >= 20 && i.age < 40).length,
-            old: allUsers.filter(i => i.age >= 40).length
+            teen: allUsers.filter((i) => i.age < 20).length,
+            adult: allUsers.filter((i) => i.age >= 20 && i.age < 40).length,
+            old: allUsers.filter((i) => i.age >= 40).length,
         };
         const adminCustomer = {
             admin: adminCount,
-            customer: userCount
+            customer: userCount,
         };
         const revenueDistribution = {
             netMargin,
@@ -201,14 +202,14 @@ export const getPieCharts = TryCatch(async (req, res, next) => {
             productionCost,
             burnt,
             marketingCost,
-            adminCustomer
+            adminCustomer,
         };
         charts = {
             orderFulfillment,
             productCategories,
             stockAvailability,
             usersAgeGroup,
-            revenueDistribution
+            revenueDistribution,
         };
         myCache.set("admin-pie-charts", JSON.stringify(charts));
     }
@@ -217,5 +218,53 @@ export const getPieCharts = TryCatch(async (req, res, next) => {
         charts,
     });
 });
-export const getBarCharts = TryCatch(async (req, res, next) => { });
+export const getBarCharts = TryCatch(async (req, res, next) => {
+    let charts;
+    const key = "admin-bar-charts";
+    if (myCache.has(key))
+        charts = JSON.parse(myCache.get(key));
+    else {
+        const today = new Date();
+        const sixMonthsAgo = new Date();
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+        const twelveMonthsAgo = new Date();
+        twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
+        const sixMonthProductPromise = Product.find({
+            createdAt: {
+                $gte: sixMonthsAgo,
+                $lte: today,
+            },
+        }).select("createdAt");
+        const sixMonthUsersPromise = User.find({
+            createdAt: {
+                $gte: sixMonthsAgo,
+                $lte: today,
+            },
+        }).select("createdAt");
+        const twelveMonthOrdersPromise = Order.find({
+            createdAt: {
+                $gte: twelveMonthsAgo,
+                $lte: today,
+            },
+        }).select("createdAt");
+        const [products, users, orders] = await Promise.all([
+            sixMonthProductPromise,
+            sixMonthUsersPromise,
+            twelveMonthOrdersPromise,
+        ]);
+        const productCounts = getChartData({ length: 6, today, docArr: products });
+        const usersCounts = getChartData({ length: 6, today, docArr: users });
+        const ordersCounts = getChartData({ length: 12, today, docArr: orders });
+        charts = {
+            users: usersCounts,
+            products: productCounts,
+            orders: ordersCounts,
+        };
+        myCache.set(key, JSON.stringify(charts));
+    }
+    return res.status(200).json({
+        success: true,
+        charts,
+    });
+});
 export const getLineCharts = TryCatch(async (req, res, next) => { });

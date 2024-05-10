@@ -1,6 +1,17 @@
 import mongoose from "mongoose";
 
 
+export interface ProductStructure extends Document {
+    
+    name: string;
+    photo: string;
+    price: number;
+    stock: number;
+    category: string;
+    createdAt: Date;
+
+}
+
 const ProductSchema = new mongoose.Schema({
 
     name:{
@@ -28,4 +39,4 @@ const ProductSchema = new mongoose.Schema({
     timestamps: true
 })
 
-export const Product = mongoose.model("Product", ProductSchema)
+export const Product = mongoose.model<ProductStructure>("Product", ProductSchema)

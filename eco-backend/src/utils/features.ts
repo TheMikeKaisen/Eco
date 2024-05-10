@@ -1,6 +1,7 @@
 import { myCache } from "../app.js";
-import { Order } from "../models/Order.Model.js";
-import { Product } from "../models/Product.Model.js";
+import { Order, OrderStructure } from "../models/Order.Model.js";
+import { Product, ProductStructure } from "../models/Product.Model.js";
+import { IUser } from "../models/User.Model.js";
 import { InvalidateCacheProps } from "../types/types.js";
 import { OrderItemType } from "../types/types.js";
 
@@ -54,7 +55,8 @@ export const reduceStock = async (orderItems: OrderItemType[]) => {
 export const calculatePercentage = (thisMonth: number, lastMonth: number) => {
   if (lastMonth === 0) return thisMonth * 100; // if last month count was 0 and this month's count is 4, then this month has got 400% increase than last month
 
-  const percent = ((thisMonth - lastMonth) / lastMonth) * 100;
+  const percent = ((thisMonth) / lastMonth) * 100; // this is absolute change percentage NOT RELATIVE
+  // 2 -> 8 : absolute percentage change=> 400%, relative percentage change=>600%
   return percent.toFixed(0);
 };
 
@@ -80,4 +82,34 @@ export const getInventories = async ({
     });
   });
   return categoryCount
+};
+
+interface MyDocument extends Document {
+  createdAt: Date;
+  discount?: number;
+  total?: number;
+}
+type FuncProps = {
+  length: number;
+  docArr: ProductStructure[] | OrderStructure[] | IUser[];
+  today: Date;
+};
+
+export const getChartData = ({
+  length,
+  docArr,
+  today,
+}: FuncProps) => {
+  const data: number[] = new Array(length).fill(0);
+
+  docArr.forEach((i: any) => {
+    const creationDate = i.createdAt;
+    const monthDiff = (today.getMonth() - creationDate.getMonth() + 12) % 12;
+
+    if(monthDiff < 6){
+      data[length - monthDiff - 1] += 1 
+    }
+  });
+
+  return data;
 };

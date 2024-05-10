@@ -39,7 +39,8 @@ export const reduceStock = async (orderItems) => {
 export const calculatePercentage = (thisMonth, lastMonth) => {
     if (lastMonth === 0)
         return thisMonth * 100; // if last month count was 0 and this month's count is 4, then this month has got 400% increase than last month
-    const percent = ((thisMonth - lastMonth) / lastMonth) * 100;
+    const percent = ((thisMonth) / lastMonth) * 100; // this is absolute change percentage NOT RELATIVE
+    // 2 -> 8 : absolute percentage change=> 400%, relative percentage change=>600%
     return percent.toFixed(0);
 };
 export const getInventories = async ({ categories, productsCount, }) => {
@@ -53,4 +54,15 @@ export const getInventories = async ({ categories, productsCount, }) => {
         });
     });
     return categoryCount;
+};
+export const getChartData = ({ length, docArr, today, }) => {
+    const data = new Array(length).fill(0);
+    docArr.forEach((i) => {
+        const creationDate = i.createdAt;
+        const monthDiff = (today.getMonth() - creationDate.getMonth() + 12) % 12;
+        if (monthDiff < 6) {
+            data[length - monthDiff - 1] += 1;
+        }
+    });
+    return data;
 };

@@ -1,7 +1,32 @@
 import mongoose, { Schema } from "mongoose";
 import validator from 'validator'
+export interface OrderItem {
+    name: string;
+    photo: string;
+    price: number;
+    quantity: number;
+    productId: mongoose.Types.ObjectId;
+}
 
-
+export interface OrderStructure extends Document {
+    shippingInfo: {
+        address: string;
+        city: string;
+        state: string;
+        country: string;
+        pinCode: string;
+    };
+    user: string;
+    subtotal: number;
+    tax: number;
+    shippingCharges: number;
+    discount: number;
+    total: number;
+    status: "Processing" | "Shipped" | "Delivered";
+    orderItems: OrderItem[];
+    createdAt: Date;
+    [key: string]: any;
+}
 const OrderSchema = new Schema({
     shippingInfo: {
         address: {
@@ -75,4 +100,4 @@ const OrderSchema = new Schema({
 })
 
 
-export const Order = mongoose.model("Order", OrderSchema)
+export const Order = mongoose.model<OrderStructure>("Order", OrderSchema)
