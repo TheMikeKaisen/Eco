@@ -36,7 +36,7 @@ export const newProduct = TryCatch(
       photo: photo.path,
     });
 
-    await invalidateCache({product: true}) // deleted the stored cache
+    invalidateCache({product: true, admin: true}) // deleted the stored cache
 
     if (!newProduct) {
       return next(new ErrorHandler("Error while creating product", 500));
@@ -163,7 +163,7 @@ export const updateSingleProduct = TryCatch(async (req, res, next) => {
 
   await product.save();
 
-  await invalidateCache({product: true, productId: String(product._id)})
+  invalidateCache({product: true, productId: String(product._id), admin: true,})
 
 
   return res.status(200).json({
@@ -187,7 +187,7 @@ export const deleteProduct = TryCatch(async (req, res, next) => {
   });
   await product.deleteOne();
 
-  await invalidateCache({product: true, productId: String(product._id)})
+  invalidateCache({product: true, productId: String(product._id), admin: true})
 
 
   return res.status(201).json({

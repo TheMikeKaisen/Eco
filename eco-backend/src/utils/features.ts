@@ -5,7 +5,7 @@ import { IUser } from "../models/User.Model.js";
 import { InvalidateCacheProps } from "../types/types.js";
 import { OrderItemType } from "../types/types.js";
 
-export const invalidateCache = async ({
+export const invalidateCache = ({
   product,
   order,
   admin,
@@ -37,6 +37,14 @@ export const invalidateCache = async ({
     myCache.del(orderKeys);
   }
   if (admin) {
+    const adminKeys: string[] = [
+      "admin-stats",
+      "admin-pie-charts",
+      "admin-bar-charts",
+      "admin-line-charts"
+    ];
+
+    myCache.del(adminKeys);
   }
 };
 
@@ -93,12 +101,14 @@ type FuncProps = {
   length: number;
   docArr: ProductStructure[] | OrderStructure[] | IUser[];
   today: Date;
+  property?:"discount" | "total"
 };
 
 export const getChartData = ({
   length,
   docArr,
   today,
+  property
 }: FuncProps) => {
   const data: number[] = new Array(length).fill(0);
 
@@ -106,8 +116,8 @@ export const getChartData = ({
     const creationDate = i.createdAt;
     const monthDiff = (today.getMonth() - creationDate.getMonth() + 12) % 12;
 
-    if(monthDiff < 6){
-      data[length - monthDiff - 1] += 1 
+    if(monthDiff < length){
+      data[length - monthDiff - 1] += property ? i[property] : 1
     }
   });
 
