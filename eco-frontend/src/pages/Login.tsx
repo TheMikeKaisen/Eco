@@ -1,9 +1,25 @@
 import React, { useState } from "react";
 import { FcGoogle } from "react-icons/fc";
-
+import toast from 'react-hot-toast'
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { auth } from "../firebase";
 const Login = () => {
   const [gender, setGender] = useState<string>("");
   const [date, setDate] = useState<string>("");
+
+  const loginHandler = async() => {
+    try {
+
+      const provider = new GoogleAuthProvider()
+
+      const {user} = await signInWithPopup(auth, provider) // extracting user to store in mongo db
+
+      console.log(user)
+      
+    } catch (error) {
+      toast.error("Sign In Failed")
+    }
+  }
   return (
     <div className="login">
       <main>
@@ -29,7 +45,7 @@ const Login = () => {
 
         <div>
             <p>Already Signed In Once</p>
-            <button>
+            <button onClick={loginHandler}>
                 <FcGoogle /><span>Sign in with google</span>
             </button>
         </div>
