@@ -1,3 +1,4 @@
+import { stripe } from "../app.js";
 import { TryCatch } from "../middlewares/error.js";
 import Coupon from "../models/Coupon.Model.js";
 import ErrorHandler from "../utils/utility-class.js";
@@ -83,5 +84,24 @@ export const deleteCoupon = TryCatch(async(req, res, next) => {
     })
 
     
+})
+
+export const createPaymentIntent = TryCatch(async(req, res, next)=>{
+    const {amount} = req.body
+
+    if(!amount){
+        return next(new ErrorHandler("amount not found", 404))
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create({
+        amount: Number(amount)*100, // takes amount value in smallest unit(here, paise)... 1 rupee = 100 paise
+        currency: "inr"
+    })
+
+    return res.status(200).json({
+        success: true, 
+        clientSecret: paymentIntent.client_secret
+    })
+
 })
 

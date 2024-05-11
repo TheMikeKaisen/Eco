@@ -5,6 +5,8 @@ import { connectDB } from './utils/db.connect.js';
 import {config} from 'dotenv'
 import { errorMiddlware } from './middlewares/error.js';
 import NodeCache from 'node-cache'
+import Stripe from 'stripe';
+import 'dotenv/config' 
 
 // routes
 import UserRoute from './routes/User.Route.js';
@@ -25,6 +27,8 @@ const PORT = process.env.PORT || 3000;
 
 const app = express()
 
+const stripeKey = process.env.STRIPE_KEY || " "
+export const stripe = new Stripe(stripeKey)
 export const myCache = new NodeCache();
 
 connectDB();
