@@ -34,7 +34,10 @@ export const newUser = TryCatch(async (
     dob: new Date(dob)
   })
 
-  return res.status(200).json(user)
+  return res.status(200).json({
+    message: "signed up successfully ",
+    user
+  })
 
 }
 )

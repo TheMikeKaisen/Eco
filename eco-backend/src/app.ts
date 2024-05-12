@@ -7,6 +7,7 @@ import { errorMiddlware } from './middlewares/error.js';
 import NodeCache from 'node-cache'
 import Stripe from 'stripe';
 import 'dotenv/config' 
+import cors from 'cors'
 
 // routes
 import UserRoute from './routes/User.Route.js';
@@ -35,9 +36,10 @@ connectDB();
 
 app.use(express.json())
 app.use(morgan("dev"))
-
+app.use(cors())
 // to work with form-value encoded data
 app.use(bodyParser.urlencoded({extended: true}))
+
 
 
 

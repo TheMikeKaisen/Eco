@@ -21,7 +21,10 @@ export const newUser = TryCatch(async (req, res, next) => {
         _id,
         dob: new Date(dob)
     });
-    return res.status(200).json(user);
+    return res.status(200).json({
+        message: "signed up successfully ",
+        user
+    });
 });
 export const getAllUsers = TryCatch(async (req, res, next) => {
     const users = await User.find({});

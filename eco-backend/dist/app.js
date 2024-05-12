@@ -5,6 +5,7 @@ import { errorMiddlware } from './middlewares/error.js';
 import NodeCache from 'node-cache';
 import Stripe from 'stripe';
 import 'dotenv/config';
+import cors from 'cors';
 // routes
 import UserRoute from './routes/User.Route.js';
 import ProductRouter from './routes/Products.Route.js';
@@ -25,6 +26,7 @@ export const myCache = new NodeCache();
 connectDB();
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(cors());
 // to work with form-value encoded data
 app.use(bodyParser.urlencoded({ extended: true }));
 // Routes
