@@ -2,9 +2,15 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import { Toaster } from "react-hot-toast";
 
-import { lazy, Suspense } from "react"; // for lazy loading
+import { lazy, Suspense, useEffect } from "react"; // for lazy loading
 import Loader from "./components/Loader";
 import Header from "./components/Header";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
+import { useDispatch, useSelector } from "react-redux";
+import { getUser } from "./redux/api/userApi";
+import { userExists, userNotExists } from "./redux/reducer/userReducer";
+import { UserReducerInitialState } from "./types/reducer-types";
 
 const Home = lazy(() => import("./pages/Home"));
 const Search = lazy(() => import("./pages/Search"));
@@ -34,32 +40,43 @@ const TransactionManagement = lazy(
 );
 
 const App = () => {
-  return (
+  const { user, loading } = useSelector(
+    (state: { userReducer: UserReducerInitialState }) => state.userReducer
+  );
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const data = await getUser(user.uid);
+        console.log("logged in data: ", data);
+        dispatch(userExists(data.user));
+      } else {
+        dispatch(userNotExists());
+      }
+    });
+  }, []);
+
+  return loading ? (
+    <Loader />
+  ) : (
     <Router>
       {/* Header */}
-      <Header />
+      <Header user={user} />
 
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<Search />} />
           <Route path="/cart" element={<Cart />} />
-
-
           {/* login route */}
           <Route path="/login" element={<Login />} />
-
-
-
           {/* Logged in user routes. */}
           <Route>
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/order/:id" element={<OrderDetails />} />
           </Route>
-            
-
-
           <Route
           // element={
           //   <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={true} />
@@ -91,7 +108,7 @@ const App = () => {
           ;
         </Routes>
       </Suspense>
-      <Toaster position="bottom-center"/>
+      <Toaster position="bottom-center" />
     </Router>
   );
 };

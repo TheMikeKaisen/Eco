@@ -19,11 +19,7 @@ const Login = () => {
       
       const {user} = await signInWithPopup(auth, provider) // extracting user to store in mongo db
       
-      console.log("kya ye print ho rha h?")
       
-
-      console.log("yaha to aagya")
-
       const res = await login({
         name: user.displayName!, 
         email: user.email!, 
