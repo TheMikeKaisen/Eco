@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "./redux/api/userApi";
 import { userExists, userNotExists } from "./redux/reducer/userReducer";
 import { UserReducerInitialState } from "./types/reducer-types";
+import ProtectedRoute from "./components/protectedRoute";
 
 const Home = lazy(() => import("./pages/Home"));
 const Search = lazy(() => import("./pages/Search"));
@@ -70,17 +71,31 @@ const App = () => {
           <Route path="/search" element={<Search />} />
           <Route path="/cart" element={<Cart />} />
           {/* login route */}
-          <Route path="/login" element={<Login />} />
+          <Route
+            path="/login"
+            element={
+              // if user exists, then login page cannot be accessed.
+              <ProtectedRoute isAuthenticated={user ? true : true}>
+                <Login />
+              </ProtectedRoute>
+            }
+          />
           {/* Logged in user routes. */}
-          <Route>
+          <Route
+            element={<ProtectedRoute isAuthenticated={user ? true : false} />}
+          >
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/order/:id" element={<OrderDetails />} />
           </Route>
           <Route
-          // element={
-          //   <ProtectedRoute isAuthenticated={true} adminRoute={true} isAdmin={true} />
-          // }
+            element={
+              <ProtectedRoute
+                isAuthenticated={true}
+                adminOnly={true}
+                admin={user?.role === "admin" ? true : false}
+              />
+            }
           >
             <Route path="/admin/dashboard" element={<Dashboard />} />
             <Route path="/admin/product" element={<Products />} />
