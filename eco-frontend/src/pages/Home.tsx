@@ -1,9 +1,17 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import ProductCard from "../components/Product-card";
+import { useLatestProductsQuery } from "../redux/api/productApi";
+import toast from "react-hot-toast";
+import Loader, { Skeleton } from "../components/Loader";
 
 const Home = () => {
   const addToCartHandler = () => {};
+
+  const { data, isLoading, isError } = useLatestProductsQuery("");
+
+  if (isError) {
+    toast.error("Cannot Fetch the Products.");
+  }
 
   return (
     <div className="home">
@@ -15,16 +23,22 @@ const Home = () => {
           More
         </Link>
       </h1>
-
       <main>
-        <ProductCard
-          productId="random"
-          photo="https://imgs.search.brave.com/cUytKzCJ3RJquydoAT8L4fbhUmycqcPJ1Gt1XmZhKU4/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9pbWcu/ZnJlZXBpay5jb20v/cHJlbWl1bS1wc2Qv/bWFjYm9vay1sYXB0/b3Atc2NyZWVuLW1v/Y2t1cF8xMDYyNDQt/MjA4Ny5qcGc_c2l6/ZT02MjYmZXh0PWpw/Zw"
-          name="Macbook"
-          price={4545}
-          stock={435}
-          handler={addToCartHandler}
-        />
+        {isLoading ? (
+          <Skeleton width="80vw" />
+        ) : (
+          data?.products.map((i) => (
+            <ProductCard
+              key={i._id}
+              productId={i._id}
+              photo={i.photo}
+              name={i.name}
+              price={i.price}
+              stock={i.stock}
+              handler={addToCartHandler}
+            />
+          ))
+        )}
       </main>
     </div>
   );

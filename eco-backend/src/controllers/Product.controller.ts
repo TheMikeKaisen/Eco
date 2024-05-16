@@ -70,7 +70,7 @@ export const latestProducts = TryCatch(async (req, res, next) => {
     
   return res.status(201).json({
     success: true,
-    latest,
+    products:latest,
   });
 });
 
@@ -169,6 +169,7 @@ export const updateSingleProduct = TryCatch(async (req, res, next) => {
   return res.status(200).json({
     success: true,
     product,
+    message: "Product updated successfully!"
   });
 });
 

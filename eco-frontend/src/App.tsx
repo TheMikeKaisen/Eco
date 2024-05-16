@@ -75,7 +75,7 @@ const App = () => {
             path="/login"
             element={
               // if user exists, then login page cannot be accessed.
-              <ProtectedRoute isAuthenticated={user ? true : true}>
+              <ProtectedRoute isAuthenticated={user ? false : true}>
                 <Login />
               </ProtectedRoute>
             }
