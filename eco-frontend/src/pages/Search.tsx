@@ -7,6 +7,9 @@ import {
 import toast from "react-hot-toast";
 import { CustomError } from "../types/api-types";
 import { Skeleton } from "../components/Loader";
+import { CartItem } from "../types/types";
+import { addToCart } from "../redux/reducer/cartReducer";
+import { useDispatch } from "react-redux";
 
 const Search = () => {
   const { data, isLoading, isError, error } = useCategoriesQuery("");
@@ -37,8 +40,13 @@ const Search = () => {
     }
   console.log("apna searched product h ye", searchedData);
 
-  const addToCartHandler = () => {};
-  
+    const dispatch = useDispatch()
+  const addToCartHandler = (cartItem: CartItem) => {
+    if(cartItem.stock < 1) return toast.error("Out of Stock")
+    dispatch(addToCart(cartItem))
+    toast.success("Added to Cart")
+  };
+
   const isNextPage = page < searchedData?.totalPage!;
   const isPrevPage = page > 1;
 
