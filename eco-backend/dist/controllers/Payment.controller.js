@@ -7,7 +7,7 @@ export const newCoupon = TryCatch(async (req, res, next) => {
     if (!code || !amount) {
         return next(new ErrorHandler("coupon/amount not found", 404));
     }
-    const couponExists = await Coupon.find({ "coupon": code });
+    const couponExists = await Coupon.findOne({ code: code });
     if (couponExists) {
         return next(new ErrorHandler("Coupon already Exists", 400));
     }

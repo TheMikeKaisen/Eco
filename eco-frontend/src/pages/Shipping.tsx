@@ -1,10 +1,23 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 import { BiArrowBack } from "react-icons/bi";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { CartReducerInitialState } from "../types/reducer-types";
 
 const Shipping = () => {
-
-    const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  
+  const { cartItems } =
+    useSelector(
+      (state: { cartReducer: CartReducerInitialState }) => state.cartReducer
+    );
+    
+    // cannot access shipping page if there is no item in cart
+    useEffect(() => {
+      if(cartItems.length <= 0) return navigate('/cart')
+      
+    }, [cartItems]);
 
 
   const [shippingInfo, setShippingInfo] = useState({

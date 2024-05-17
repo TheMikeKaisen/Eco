@@ -5,8 +5,10 @@ import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { CartReducerInitialState } from "../types/reducer-types";
 import { CartItem } from "../types/types";
-import { addToCart, calculatePrice, removeCartItem } from "../redux/reducer/cartReducer";
+import { addToCart, calculatePrice, discountApplied, removeCartItem } from "../redux/reducer/cartReducer";
 import toast from "react-hot-toast";
+import axios from "axios";
+import { server } from "../redux/store";
 
 
 const Cart = () => {
@@ -33,10 +35,24 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    const timeOutID = setTimeout(() => {
-      if (Math.random() > 0.5) setIsValidCouponCode(true);
-      else setIsValidCouponCode(false);
-    });
+    const timeOutID = setTimeout(async () => {
+
+      await axios.get(`${server}/api/v1/payments/discount?coupon=${couponCode}`)
+      .then((res)=>{
+        console.log(res.data)
+        dispatch(discountApplied(res.data.discount));
+        setIsValidCouponCode(true);
+        dispatch(calculatePrice())
+      })
+      .catch((e)=> {
+        console.log(e)
+        dispatch(discountApplied(0));
+        setIsValidCouponCode(false)
+        dispatch(calculatePrice())
+      })
+      
+    }, 1000);
+
     return () => {
       clearTimeout(timeOutID);
       setIsValidCouponCode(false);
