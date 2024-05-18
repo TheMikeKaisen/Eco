@@ -74,7 +74,7 @@ export const getSingleOrder = TryCatch(async (req, res, next) => {
         order = JSON.parse(cachedOrder);
     }
     else {
-        order = await Order.find({ _id: id });
+        order = await Order.findOne({ _id: id });
         if (!order) {
             return next(new ErrorHandler("order not found", 404));
         }

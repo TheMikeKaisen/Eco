@@ -8,7 +8,7 @@ import {
   useProductDetailsQuery,
   useUpdateProductMutation,
 } from "../../../redux/api/productApi";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { server } from "../../../redux/store";
 import { Skeleton } from "../../../components/Loader";
 import { responseToast } from "../../../utils/features";
@@ -23,7 +23,9 @@ const Productmanagement = () => {
 
   const navigate = useNavigate()
   const params = useParams();
-  const { data, isLoading } = useProductDetailsQuery(params.id!);
+  const { data, isLoading, isError } = useProductDetailsQuery(params.id!);
+
+  if(isError) return <Navigate to={'/404'} />
 
   const { price, photo, name, stock, category } = data?.product || {
     _id: "",
