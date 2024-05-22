@@ -21,6 +21,7 @@ const Login = lazy(() => import("./pages/Login"));
 const Orders = lazy(() => import("./pages/Orders"));
 const OrderDetails = lazy(() => import("./pages/Order-details"));
 const NotFound = lazy(() => import("./pages/Not-found"));
+const Checkout = lazy(() => import("./pages/checkout"));
 
 // admin dashboards
 const Dashboard = lazy(() => import("./pages/admin/dashboard"));
@@ -88,6 +89,7 @@ const App = () => {
             <Route path="/shipping" element={<Shipping />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/order/:id" element={<OrderDetails />} />
+            <Route path="/pay" element={<Checkout />} />
           </Route>
           <Route
             element={

@@ -3,15 +3,40 @@ import { BiArrowBack } from "react-icons/bi";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { CartReducerInitialState } from "../types/reducer-types";
+import { server } from "../redux/store";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { saveShippingInfo } from "../redux/reducer/cartReducer";
 
 const Shipping = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   
-  const { cartItems } =
+  
+  const { cartItems, total } =
     useSelector(
       (state: { cartReducer: CartReducerInitialState }) => state.cartReducer
     );
+
+    const submitHandler = async(e:React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      dispatch(saveShippingInfo(shippingInfo))
+      try {
+        const {data} = await axios.post(`${server}api/v1/payments/create`, {
+          amount: total
+        }, {
+          headers: {
+            "Content-Type":"application/json"
+          }
+        })
+        navigate("/pay", {
+          state: data.clientSecret
+        })
+      } catch (error) {
+        console.log(error)
+        toast.error("Something went wrong!")
+      }
+    }
     
     // cannot access shipping page if there is no item in cart
     useEffect(() => {
@@ -38,7 +63,7 @@ const Shipping = () => {
         <BiArrowBack />
       </button>
 
-      <form action="">
+      <form onSubmit={submitHandler}>
         <h1>Shipping Address</h1>
         <input
           required

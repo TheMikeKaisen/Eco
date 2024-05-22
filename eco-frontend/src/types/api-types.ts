@@ -68,7 +68,7 @@ export type NewOrderRequest = {
     shippingCharges:number;
     discount:number;
     total:number;
-    user:number;
+    user:string;
 }
 
 export type AllOrdersResponse = {
