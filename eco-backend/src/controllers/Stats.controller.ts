@@ -285,7 +285,6 @@ export const getPieCharts = TryCatch(async (req, res, next) => {
       productionCost,
       burnt,
       marketingCost,
-      adminCustomer,
     };
 
     charts = {
@@ -294,6 +293,7 @@ export const getPieCharts = TryCatch(async (req, res, next) => {
       stockAvailability,
       usersAgeGroup,
       revenueDistribution,
+      adminCustomer,
     };
 
     myCache.set("admin-pie-charts", JSON.stringify(charts));

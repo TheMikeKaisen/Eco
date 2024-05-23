@@ -82,3 +82,31 @@ export type stats = {
     latestTransaction: LatestTransaction[]
 
 }
+export type Pie = {
+    orderFulfillment:{
+        processing: number;
+        shipped: number;
+        delivered: number;
+    },
+    productCategories:Record<string, number>[],
+    stockAvailability: {
+        inStock: number;
+        outOfStock: number;
+    },
+    usersAgeGroup: {
+        teen: number;
+        adult: number;
+        old: number;
+    },
+    revenueDistribution: {
+        netMargin: number;
+        discount: number;
+        productionCost: number;
+        burnt: number;
+        marketingCost: number;
+    },
+    adminCustomer: {
+        admin: number;
+        customer: number;
+    }
+}
