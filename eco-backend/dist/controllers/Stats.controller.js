@@ -87,9 +87,9 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
         const lastMonthRevenue = lastMonthOrders.reduce((total, order) => total + (order.total || 0), 0);
         const changePercent = {
             revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
-            product: calculatePercentage(thisMonthProducts.length, lastMonthProducts.length),
-            user: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
-            order: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
+            products: calculatePercentage(thisMonthProducts.length, lastMonthProducts.length),
+            users: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
+            orders: calculatePercentage(thisMonthOrders.length, lastMonthOrders.length),
         };
         const revenue = allOrders.reduce((total, order) => total + (order.total || 0), 0);
         const count = {
@@ -128,8 +128,8 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
             changePercent,
             count,
             chart: {
-                orderMonthCounts,
-                monthlyRevenue,
+                order: orderMonthCounts,
+                revenue: monthlyRevenue,
             },
             userRatio,
             latestTransaction: modifiedLatestTransaction,

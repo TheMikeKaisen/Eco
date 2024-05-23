@@ -123,12 +123,12 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
 
     const changePercent = {
       revenue: calculatePercentage(thisMonthRevenue, lastMonthRevenue),
-      product: calculatePercentage(
+      products: calculatePercentage(
         thisMonthProducts.length,
         lastMonthProducts.length
       ),
-      user: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
-      order: calculatePercentage(
+      users: calculatePercentage(thisMonthUsers.length, lastMonthUsers.length),
+      orders: calculatePercentage(
         thisMonthOrders.length,
         lastMonthOrders.length
       ),
@@ -182,8 +182,8 @@ export const dashboardStats = TryCatch(async (req, res, next) => {
       changePercent,
       count,
       chart: {
-        orderMonthCounts,
-        monthlyRevenue,
+        order: orderMonthCounts,
+        revenue: monthlyRevenue,
       },
       userRatio,
       latestTransaction: modifiedLatestTransaction,

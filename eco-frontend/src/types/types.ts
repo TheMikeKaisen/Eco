@@ -51,3 +51,34 @@ export type Order = {
     }
     _id:string
 }
+
+type CountAndChange = {
+    revenue: number;
+    products: number;
+    users: number;
+    orders: number;
+}
+
+type LatestTransaction = {
+    _id: string,
+    discount: number,
+    amount: number,
+    quantity: number,
+    status: string
+}
+
+export type stats = {
+    categoryCount: Record<string, number>[]; // an array of key-pair values where key is a string and value is a number (Record is a utility class.)
+    changePercent: CountAndChange, 
+    count: CountAndChange;
+    chart: {
+        order: number[];
+        revenue: number[];
+    },
+    userRatio:{
+        male: number;
+        female: number;
+    };
+    latestTransaction: LatestTransaction[]
+
+}

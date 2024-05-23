@@ -1,4 +1,4 @@
-import { CartItem, Order, Product, ShippingInfo, User } from "./types";
+import { CartItem, Order, Product, ShippingInfo, User, stats } from "./types";
 
 
 export type CustomError = {
@@ -87,5 +87,9 @@ export type AllOrdersResponse = {
 export type OrderDetailsResponse = {
     success: boolean, 
     order: Order,
+}
+export type statsResponse = {
+    success: boolean, 
+    stats: stats,
 }
 

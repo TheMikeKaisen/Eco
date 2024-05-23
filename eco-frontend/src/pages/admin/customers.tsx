@@ -5,7 +5,10 @@ import AdminSidebar from "../../components/admin/AdminSidebar";
 import TableHOC from "../../components/admin/TableHOC";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
-import { useAllUsersQuery, useDeleteUserMutation } from "../../redux/api/userApi";
+import {
+  useAllUsersQuery,
+  useDeleteUserMutation,
+} from "../../redux/api/userApi";
 import { CustomError } from "../../types/api-types";
 import toast from "react-hot-toast";
 import { Skeleton } from "../../components/Loader";
@@ -60,24 +63,31 @@ const Customers = () => {
     toast.error(err.data.message);
   }
 
-  const [deleteUser] = useDeleteUserMutation()
+  const [deleteUser] = useDeleteUserMutation();
 
-
-  const deleteHandler = async(userId: string) => {
-    const res = await deleteUser({userId, adminUserId:user?._id!})
-    responseToast(res, null, "")
-  }
+  const deleteHandler = async (userId: string) => {
+    const res = await deleteUser({ userId, adminUserId: user?._id! });
+    responseToast(res, null, "");
+  };
   useEffect(() => {
     if (data) {
       setRows(
         data.users.map((i) => ({
-          avatar: <img src={i.photo} />,
+          avatar: (
+            <img
+              style={{
+                borderRadius: "50%",
+              }}
+              src={i.photo}
+              alt={i.name}
+            />
+          ),
           name: i.name,
           email: i.email,
           gender: i.gender,
           role: i.role,
           action: (
-            <button onClick={()=>deleteHandler(i._id)}>
+            <button onClick={() => deleteHandler(i._id)}>
               <FaTrash />
             </button>
           ),
@@ -87,7 +97,6 @@ const Customers = () => {
   }, [data]);
 
   const [rows, setRows] = useState<DataType[]>([]);
-
 
   const Table = TableHOC<DataType>(
     columns,
