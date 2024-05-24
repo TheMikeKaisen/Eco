@@ -1,23 +1,23 @@
-import { useEffect } from "react";
-import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
 import { Skeleton } from "../../../components/Loader";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
 import { DoughnutChart, PieChart } from "../../../components/admin/Charts";
 import { usePieQuery } from "../../../redux/api/dashboardApi";
 import { RootState } from "../../../redux/store";
-import { CustomError } from "../../../types/api-types";
+import toast from "react-hot-toast";
 
 const PieCharts = () => {
   const { user } = useSelector((state: RootState) => state.userReducer);
 
-  const { isLoading, data, error, isError } = usePieQuery(user?._id!);
+  const { isLoading, data, isError } = usePieQuery(user?._id!);
 
-  useEffect(() => {
-    if (isError && error) {
-      toast.error((error as CustomError).data.message);
-    }
-  }, [isError, error]);
+  
+  if (isError) {
+    toast.error("Cannot fetch the data")
+    return <Navigate to={'/admin/dashboard'} />
+  }
+  
 
   const order = data?.charts.orderFulfillment!;
   const categories = data?.charts.productCategories!;

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { PieResponse, statsResponse } from "../../types/api-types";
+import { BarResponse, LineResponse, PieResponse, statsResponse } from "../../types/api-types";
 
 export const dashboardApi = createApi({
   reducerPath: "dashboardApi",
@@ -8,16 +8,23 @@ export const dashboardApi = createApi({
   }),
   endpoints: (builder) => ({
     stats: builder.query<statsResponse, string> ({
-        query: id=> `stats?id=${id}`
+        query: id=> `stats?id=${id}`,
+        keepUnusedDataFor: 0 // avoids caching in charts to reflect real time changes.
     }),
     pie: builder.query<PieResponse, string> ({
-        query: id=> `pie?id=${id}`
+        query: id=> `pie?id=${id}`,
+        keepUnusedDataFor: 0
+
     }),
-    bar: builder.query<string, string> ({
-        query: id=> `bar?id=${id}`
+    bar: builder.query<BarResponse, string> ({
+        query: id=> `bar?id=${id}`,
+        keepUnusedDataFor: 0
+
     }),
-    line: builder.query<string, string> ({
-        query: id=> `line?id=${id}`
+    line: builder.query<LineResponse, string> ({
+        query: id=> `line?id=${id}`,
+        keepUnusedDataFor: 0
+
     }),
   }),
 });

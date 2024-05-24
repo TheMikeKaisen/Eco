@@ -1,17 +1,16 @@
+import toast from "react-hot-toast";
 import { BiMaleFemale } from "react-icons/bi";
 import { BsSearch } from "react-icons/bs";
 import { FaRegBell } from "react-icons/fa";
 import { HiTrendingDown, HiTrendingUp } from "react-icons/hi";
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
+import { Skeleton } from "../../components/Loader";
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import { BarChart, DoughnutChart } from "../../components/admin/Charts";
 import Table from "../../components/admin/DashboardTable";
-import { RootState } from "../../redux/store";
-import { useSelector } from "react-redux";
 import { useStatsQuery } from "../../redux/api/dashboardApi";
-import { CustomError } from "../../types/api-types";
-import toast from "react-hot-toast";
-import { Skeleton } from "../../components/Loader";
-import { useEffect } from "react";
+import { RootState } from "../../redux/store";
 
 
 const userImg =
@@ -22,15 +21,14 @@ const Dashboard = () => {
 
   const {user} = useSelector((state: RootState)=>state.userReducer)
 
-  const { isLoading, data, error, isError } = useStatsQuery(user?._id!)
+  const { isLoading, data, isError } = useStatsQuery(user?._id!)
 
 
 
-  useEffect(() => {
-    if (isError && error) {
-      toast.error((error as CustomError).data.message);
-    }
-  }, [isError, error]);
+  if(isError){
+    toast.error("Cannot fetch dashboard data!")
+    return <Navigate to={'/'} />
+  }
 
 
   const stats = data?.stats!

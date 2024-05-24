@@ -1,31 +1,45 @@
+import { useSelector } from "react-redux";
+import { Navigate } from "react-router-dom";
+import { Skeleton } from "../../../components/Loader";
 import AdminSidebar from "../../../components/admin/AdminSidebar";
 import { BarChart } from "../../../components/admin/Charts";
+import { useBarQuery } from "../../../redux/api/dashboardApi";
+import { RootState } from "../../../redux/store";
+import { getLastMonths } from "../../../utils/features";
+import toast from "react-hot-toast";
 
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "Aug",
-  "Sept",
-  "Oct",
-  "Nov",
-  "Dec",
-];
 
 const Barcharts = () => {
+  const { user } = useSelector((state: RootState) => state.userReducer);
+
+  const { isLoading, data, isError } = useBarQuery(user?._id!);
+
+  
+  
+  if (isError) {
+    toast.error("Cannot fetch the data")
+
+    return <Navigate to={'/admin/dashboard'} />
+  }
+
+  const users = data?.charts.users || []
+  const products = data?.charts.products || []
+  const orders = data?.charts.orders || []
+  
+  const {last12Months, last6Months} = getLastMonths()
   return (
     <div className="admin-container">
       <AdminSidebar />
       <main className="chart-container">
         <h1>Bar Charts</h1>
-        <section>
+        {
+          isLoading?<Skeleton count={20}/>:
+          <>
+          <section>
           <BarChart
-            data_2={[300, 144, 433, 655, 237, 755, 190]}
-            data_1={[200, 444, 343, 556, 778, 455, 990]}
+            data_1={products}
+            data_2={users}
+            labels={last6Months}
             title_1="Products"
             title_2="Users"
             bgColor_1={`hsl(260, 50%, 30%)`}
@@ -37,18 +51,18 @@ const Barcharts = () => {
         <section>
           <BarChart
             horizontal={true}
-            data_1={[
-              200, 444, 343, 556, 778, 455, 990, 444, 122, 334, 890, 909,
-            ]}
+            data_1={orders}
             data_2={[]}
             title_1="Orders"
             title_2=""
             bgColor_1={`hsl(180, 40%, 50%)`}
             bgColor_2=""
-            labels={months}
+            labels={last12Months}
           />
           <h2>Orders throughout the year</h2>
         </section>
+          </>
+        }
       </main>
     </div>
   );
