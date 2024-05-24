@@ -22,7 +22,7 @@ const Shipping = () => {
       e.preventDefault();
       dispatch(saveShippingInfo(shippingInfo))
       try {
-        const {data} = await axios.post(`${server}api/v1/payments/create`, {
+        const {data} = await axios.post(`${server}/api/v1/payments/create`, {
           amount: total
         }, {
           headers: {
@@ -110,7 +110,7 @@ const Shipping = () => {
           onChange={changeHandler}
         />
 
-        <button type="submit" onClick={()=> navigate('/cart')}>
+        <button type="submit">
             Pay Now
         </button>
       </form>

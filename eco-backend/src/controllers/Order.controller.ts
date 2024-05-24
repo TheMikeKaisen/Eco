@@ -81,6 +81,7 @@ export const allOrders = TryCatch(async (req, res, next) => {
     orders = JSON.parse(cachedOrders as string);
   } else {
     orders = await Order.find().populate("user", "name");
+    console.log(orders)
 
     myCache.set(key, JSON.stringify(orders));
   }
